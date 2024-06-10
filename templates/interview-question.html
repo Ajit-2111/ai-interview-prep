@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>InterviewPrep|Interview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/record.js') }}"></script>
+    <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+    <style>
+        #myVidPlayer{
+        display: none;
+        }
+        #myVidPlayer {
+width: 300px;
+height: 200px;
+/* Define the animation */
+animation-name: slideIn;
+animation-duration: 1s;
+}
+
+/* Define the keyframes for the animation */
+@keyframes slideIn {
+0% { transform: translateX(100%); }
+100% { transform: translateX(0); }
+}
+    </style>
+</head>
+<body>
+<div class="page vh-100">
+    <header>
+        <div class="container">
+            <a href="/" class="logo">Interview<b>Prep</b></a>
+            <ul class="links">
+                <li>{{pageHeading}}</li>
+            </ul>
+        </div>
+    </header>
+    <div id="loading"> {% include 'loading.html' %}</div>
+    <div id="question-container">
+        <div class="container d-flex justify-content-center align-items-center h-75 m-auto">
+            <div class="container d-flex flex-column" id="question-section">
+                <h1 class="details-heading">{{pageQuestion}}</h1>
+                <br>
+                <form action="{{ url_for('interview_response')}}" method="post"
+                      onsubmit="loading('question-container')">
+                    <input type="text" name="curQuestion" id="curQuestion" value="{{pageQuestion}}"
+                           style="display:none">
+                    <div class="form-group">
+                        <textarea class="form-control" name="answer" id="answer" rows="3"></textarea>
+                    </div>
+                    <br>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" id="cameraButton" class="btn btn-danger" value="OFF" onclick="toggle(this);">
+                        <img
+                                src="static/icons/camera.png" height="25px" alt="camera button"></button>
+                    <button type="button" id="micButton" class="btn btn-danger" value="OFF"><img
+                            src="static/icons/microphone.png" height="25px" alt="camera button"></button>
+
+                </form>
+            </div>
+            <div class="question-item">
+                <video id="myVidPlayer" controls muted autoplay></video>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+
+
+    let voices
+
+    window.speechSynthesis.onvoiceschanged = function() {
+      voices = window.speechSynthesis.getVoices();
+      speakTTS(2)
+    };
+
+    function speakTTS(voiceNumber) {
+      const message = new SpeechSynthesisUtterance();
+      message.text = "{{pageQuestion}}";
+      message.volume = 1; // Volume range = 0 - 1
+      message.rate = 1.1; // Speed of the text read , default 1
+
+      try {
+      message.voice = voices[voiceNumber]; // change voice
+    } catch (error) {
+      console.error(error);
+       message.voice = voices[0]; // change voice
+    }
+      message.lang = 'en-US'; // Language, default 'en-US'
+      window.speechSynthesis.speak(message);
+      console.log(voices);
+    }
+
+
+    function toggle(button) {
+    console.log(button);
+      if (button.value == "OFF") {
+        button.value = "ON";
+        videoOn();
+        button.className = "btn btn-primary";
+        document.getElementById("myVidPlayer").style.display = 'inline';
+        document.getElementById("micButton").click();
+      } else {
+        button.value = "OFF";
+        videoOff();
+        button.className = "btn btn-danger";
+        document.getElementById("myVidPlayer").style.display = 'none';
+        document.getElementById("micButton").click();
+      }
+    }
+    //Selector for your <video> element
+    const video = document.querySelector('#myVidPlayer');
+    const canvasElement = document.createElement('canvas');
+    const context = canvasElement.getContext('2d');
+    let intervalId;
+
+    function videoOn(){
+        //Core
+        window.navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                intervalId = setInterval(takeSnapshotAndSend, 5000);
+                video.onloadedmetadata = (e) => {
+                    video.play();
+                };
+            })
+            .catch( () => {
+                alert('You have give browser the permission to run Webcam and mic ;( ');
+            });
+    }
+    function videoOff() {
+            const stream = video.srcObject;
+            if (stream) {
+              const tracks = stream.getTracks();
+
+              tracks.forEach(function (track) {
+                track.stop();
+              });
+
+              video.srcObject = null;
+              clearInterval(intervalId);
+           }
+      }
+
+    function takeSnapshotAndSend() {
+      context.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+      const imageData = canvasElement.toDataURL('image/jpeg');
+      sendImageToBackend(imageData);
+    }
+
+    function sendImageToBackend(imageData) {
+      fetch('/image-upload', {
+        method: 'POST',
+        body: JSON.stringify({ image: imageData }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Image sent successfully');
+        } else {
+          console.error('Failed to send image:', response.status);
+        }
+      })
+      .catch(error => console.error('Error sending image:', error));
+    }
+
+
+     // Check for browser support
+       if ('webkitSpeechRecognition' in window) {
+          const recognition = new webkitSpeechRecognition();
+          let recognitionActive = false; // Flag to track whether recognition is active
+
+          // Enable continuous speech recognition
+          recognition.continuous = true;
+
+          // Handle speech recognition results
+          recognition.onresult = function (event) {
+             const transcript = event.results[event.results.length - 1][0].transcript;
+             document.getElementById('answer').textContent += transcript;
+          };
+
+          // Handle speech recognition error
+          recognition.onerror = function (event) {
+             console.error('Speech recognition error:', event.error);
+          };
+
+          // Toggle speech recognition on/off when the button is clicked
+          document.getElementById('micButton').addEventListener('click', function () {
+             if (recognitionActive) {
+                recognition.stop(); // Stop speech recognition if it's active
+                recognitionActive = false;
+                this.className = "btn btn-danger";
+                stopAudioRecord();
+             } else {
+                recognition.start(); // Start speech recognition
+                recognitionActive = true;
+                this.className = "btn btn-success";
+                startAudioRecord();
+             }
+          });
+       } else {
+          document.getElementById('micButton').disabled = true; // Disable button if speech recognition is not supported
+          console.error('Speech recognition not supported.');
+       }
+
+
+
+</script>
+</body>
+</html>
+
+
+
+

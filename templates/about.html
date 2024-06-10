@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <title>InterviewPrep|About</title>
+
+  </head>
+  <body>
+      <div class="page">
+{% include 'navbar.html' %}
+        <div class="content">
+          <div class="container">
+            <div class="info">
+              <h1 style="color:#1e2b3a;font-size: xxx-large;font-weight: bolder;font-family: cursive;"> About <span style="color:#407bbf">Us</span></h1>
+              <p>At <b>InterviewPrep</b>, we're passionate about leveling the playing field in the competitive landscape of job interviews. Our mission is to provide job seekers with the tools and resources they need to succeed, leveraging cutting-edge AI technology to enhance interview preparation like never before. With a team of industry experts and AI engineers, we're dedicated to crafting a seamless experience that empowers you to showcase your skills and expertise with confidence. Whether you're a seasoned professional or embarking on your career journey, trust us to be your partner in achieving interview success.</p>
+
+            </div>
+            <div class="image">
+              <img src="static/images/about.png">
+            </div>
+          </div>
+        </div>
+      </div>
+  {% include 'footer.html' %}
+  </body>
+</html>
+
+
+
+

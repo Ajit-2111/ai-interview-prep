@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>InterviewPrep|Home</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  </head>
+  <body>
+      <div class="page">
+       {% include 'navbar.html' %}
+<div id="interview-analysis" class="container-md">
+{% for item in interviewFullResponse %}
+ <div class="card">
+      <div class="card-header py-4"><h4>{{item['question']}}</h4></div>
+
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"> <div class="card-body">
+          <h5 class="card-title"><img src="static/icons/answer_icon.png" height="25px !important" style="margin-right:10px" alt="entry_level">Your Answer</h5>
+          <p class="card-text" style="text-align:justify">{{item['answer']}}</p>
+        </div></li>
+        <li class="list-group-item"> <div class="card-body">
+          <h5 class="card-title"><img src="static/icons/feedback_icon.png" height="25px !important" style="margin-right:10px" alt="entry_level">Feedback
+              <br> Sentiment : {{item['sentiment']}}</h5>
+          <p class="card-text" style="text-align:justify">{{item['feedback']}}</p>
+        </div></li>
+        <li class="list-group-item"> <div class="card-body">
+          <h5 class="card-title"><img src="static/icons/chatbot_icon.png" height="25px !important" style="margin-right:10px" alt="entry_level">Suggested Answer</h5>
+          <p class="card-text" style="text-align:justify">{{item['suggestedAnswer']}}</p>
+        </div></li>
+      </ul>
+    </div>
+    <br> <br>
+
+    {% endfor %}
+    <br> <br>
+    <div class="text-center">
+        <button class="custom-btn btn-3" onclick="location.href='personal-details'"><span>New Test</span></button>
+        <button class="custom-btn btn-3" onclick="window.location.href='retake-test'"><span>Retake Test</span></button>
+    </div>
+</div>
+      </div>
+        <br> <br> <br>
+      {% include 'footer.html' %}
+  </body>
+</html>
+
